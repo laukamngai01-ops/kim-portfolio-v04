@@ -1,7 +1,7 @@
 // Original interface implementation based on direct observation of Ravi
 // Klaassens' A24 tribute. No reference code, fonts or media are included.
 import { filmHeader } from './header.js';
-import { createShelfTypeMotion } from './film-type-motion.js?v=2';
+import { createShelfTypeMotion } from './film-type-motion.js?v=3';
 
 export function mountShell(root, {
   onSelect = () => {}, onOpen = () => {},
@@ -41,6 +41,7 @@ export function mountShell(root, {
   const labels = rows.map(row => row.querySelector('[data-label]'));
   const rules = rows.map(row => row.querySelector('.a24-meta-rule'));
   let entries = [], index = 0, key = null;
+  let lastChange = -Infinity;
   let covered = false, disposed = false;
 
   const keyOf = entry => entry?.key || entry?.id || `${entry?.projectId}:${entry?.index}`;
@@ -63,7 +64,12 @@ export function mountShell(root, {
     let motion = 'static';
     if (!covered && !reduced.matches && !document.hidden && title.animate) {
       if (key === null && root.dataset.arriving === 'true') motion = 'arrival';
-      else if (key !== null && !immediate) motion = 'change';
+      else if (key !== null && !immediate) {
+        const now = performance.now();
+        const interval = now - lastChange;
+        if (interval >= 160) motion = interval < 900 ? 'quick' : 'change';
+        lastChange = now;
+      }
     }
     typeMotion.cancel();
     key = nextKey;
@@ -131,7 +137,10 @@ export function mountShell(root, {
       info.setAttribute('aria-hidden', String(covered)); notes.setAttribute('aria-hidden', String(covered));
       stageHost.inert = covered;
       $('.a24-keyboard-controls').inert = covered;
-      if (covered) typeMotion.settle();
+      if (covered) {
+        lastChange = -Infinity;
+        typeMotion.settle();
+      }
     },
     setWatch(value) {
       masthead.inert = Boolean(value); root.dataset.watching = String(Boolean(value));
