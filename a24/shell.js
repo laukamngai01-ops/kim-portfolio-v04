@@ -1,7 +1,7 @@
 // Original interface implementation based on direct observation of Ravi
 // Klaassens' A24 tribute. No reference code, fonts or media are included.
 import { filmHeader } from './header.js';
-import { createShelfTypeMotion } from './film-type-motion.js';
+import { createShelfTypeMotion } from './film-type-motion.js?v=2';
 
 export function mountShell(root, {
   onSelect = () => {}, onOpen = () => {},
@@ -65,25 +65,26 @@ export function mountShell(root, {
       if (key === null && root.dataset.arriving === 'true') motion = 'arrival';
       else if (key !== null && !immediate) motion = 'change';
     }
+    typeMotion.cancel();
     key = nextKey;
     const project = entry.project || {};
     info.dataset.key = nextKey;
-    typeMotion.replace(title, nameOf(entry), motion, 50, 745);
+    typeMotion.replace(title, nameOf(entry), motion);
     const values = [
       [fields.titleZh, nameZhOf(entry)],
       [fields.role, project.roleZh || entry.projectRoleZh || project.role || entry.projectRole || ''],
       [fields.format, formatOf(entry)],
     ];
     values.forEach(([mask, value], row) => {
-      typeMotion.replace(labels[row], labels[row].dataset.label, motion, 84 + row * 48, 820 + row * 100);
-      typeMotion.replace(mask, value, motion, 99 + row * 48, 855 + row * 100);
+      typeMotion.replace(labels[row], labels[row].dataset.label, motion, 44 + row * 58);
+      typeMotion.replace(mask, value, motion, 64 + row * 58);
       typeMotion.rule(rules[row], row, motion);
     });
     const sequence = number => String(number).padStart(2, '0');
-    typeMotion.replace(fields.noteLabel, entry.isAI ? 'AI-assisted film experiment' : 'Selected project', motion, 239, 1190);
-    typeMotion.replace(fields.note, project.source?.subtitle?.[0] || entry.label || entry.item?.label || nameOf(entry), motion, 254, 1220);
-    typeMotion.replace(fields.filmNumber, `Film note · ${sequence(index + 1)} / ${sequence(entries.length)}`, motion, 287, 1290);
-    typeMotion.replace(fields.filmNote, entry.filmNote || entry.label || nameOf(entry), motion, 302, 1320);
+    typeMotion.replace(fields.noteLabel, entry.isAI ? 'AI-assisted film experiment' : 'Selected project', motion, 258);
+    typeMotion.replace(fields.note, project.source?.subtitle?.[0] || entry.label || entry.item?.label || nameOf(entry), motion, 276);
+    typeMotion.replace(fields.filmNumber, `Film note · ${sequence(index + 1)} / ${sequence(entries.length)}`, motion, 316);
+    typeMotion.replace(fields.filmNote, entry.filmNote || entry.label || nameOf(entry), motion, 334);
     $('.a24-live').textContent = `${nameOf(entry)}，${nameZhOf(entry)}${entry.isAI ? '，AI 輔助影片' : ''}`;
     $('[data-action="open"]').setAttribute('aria-label', `開啟 ${nameZhOf(entry) || nameOf(entry)}`);
   }
