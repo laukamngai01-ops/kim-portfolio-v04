@@ -1,9 +1,7 @@
-// Direction and timing follow measured shelf changes in both directions.
-// Incoming and departing lines travel up through stationary apertures.
-const measuredLift = 'linear(0, .09 11%, .58 26%, .86 41%, .94 54%, .98 71%, 1)';
+// Lines rise through stationary apertures. On selection, the new copy starts
+// inside its aperture so the shelf remains readable between inputs.
 const measuredRise = 'linear(0, .10 7%, .30 13%, .56 20%, .77 27%, .86 34%, .94 46%, .975 60%, .993 76%, 1)';
 const supportsLinear = globalThis.CSS?.supports('animation-timing-function', measuredRise);
-const lift = supportsLinear ? measuredLift : 'cubic-bezier(.35,0,.08,1)';
 const rise = supportsLinear ? measuredRise : 'cubic-bezier(.37,0,.04,1)';
 const offset = distance => `translateY(${distance}%)`;
 
@@ -35,15 +33,6 @@ function splitLines(face) {
 }
 
 const inkOf = face => face.children.length ? [...face.querySelectorAll('.a24-line-ink')] : [face];
-function visibleParts(face) {
-  return inkOf(face).map(ink => {
-    const transform = getComputedStyle(ink).transform;
-    const y = transform === 'none' ? 0 : new DOMMatrixReadOnly(transform).m42;
-    const fraction = Math.min(1, Math.abs(y) / (ink.offsetHeight || 1));
-    return { ink, transform, visible: 1 - fraction };
-  });
-}
-
 export function createShelfTypeMotion(root) {
   const active = new Set();
   let reflowAfterMotion = false;
@@ -52,72 +41,33 @@ export function createShelfTypeMotion(root) {
     active.add(animation);
     animation.finished.then(() => {
       active.delete(animation);
-      if (!active.size && reflowAfterMotion) reflow();
-      // An outgoing line must stay outside its aperture while later lines finish.
-      if (node.closest('.a24-mask-outgoing')) return;
       animation.cancel();
+      if (!active.size && reflowAfterMotion) reflow();
     }, () => active.delete(animation));
-    return animation.finished;
   }
-  function replace(mask, text, mode, outAt = 0, inAt = 0) {
-    const animate = mode !== 'static';
-    const first = mode === 'arrival';
+  function replace(mask, text, mode, arrivalDelay = 0) {
+    if (mask.getAttribute('aria-label') === text) return;
+    const arriving = mode === 'arrival';
     const isCaption = mask.classList.contains('a24-note-text');
     mask.setAttribute('aria-label', text);
-    const old = [...mask.children];
-    if (isCaption && animate) old.forEach(splitLines);
-    const visible = animate ? old.map(face => ({ face, parts: visibleParts(face) }))
-      .sort((a, b) => Math.max(...b.parts.map(p => p.visible)) - Math.max(...a.parts.map(p => p.visible)))[0] : null;
-    for (const face of old) {
-      if (face === visible?.face && visible.parts.some(p => p.visible > .01)) {
-        // A second input during departure keeps the original trajectory.
-        if (face.classList.contains('a24-mask-outgoing')) continue;
-        face.classList.add('a24-mask-outgoing');
-        face.setAttribute('aria-hidden', 'true');
-        const completions = visible.parts.map(({ ink, transform, visible: amount }, line) => {
-          ink.getAnimations().forEach(animation => animation.cancel());
-          if (amount <= .01) { ink.style.visibility = 'hidden'; return Promise.resolve(); }
-          return play(ink, [{ transform }, { transform: offset(-120) }], {
-            delay: outAt + line * 15, duration: 380, easing: lift,
-          });
-        });
-        Promise.allSettled(completions).then(() => face.remove());
-      } else {
-        face.getAnimations({ subtree: true }).forEach(animation => animation.cancel());
-        face.remove();
-      }
-    }
     const face = document.createElement('span');
     face.className = 'a24-mask-face';
     face.textContent = text;
-    mask.append(face);
+    mask.replaceChildren(face);
     if (isCaption) splitLines(face);
-    if (!animate) return;
+    if (mode === 'static') return;
     for (const [line, ink] of inkOf(face).entries()) {
-      play(ink, [{ transform: offset(120) }, { transform: offset(0) }], {
-        delay: (first ? (inAt - 745) * .58 : inAt) + line * (first ? 26 : 45),
-        duration: first ? 550 : 720, easing: rise,
+      play(ink, [{ transform: offset(arriving ? 120 : 10) }, { transform: offset(0) }], {
+        delay: arriving ? arrivalDelay + line * 26 : (isCaption ? 18 + line * 14 : 0),
+        duration: arriving ? 550 : 240,
+        easing: rise,
       });
     }
   }
   function rule(node, row, mode) {
-    if (mode === 'static') return;
-    if (mode === 'arrival') {
-      play(node, [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }],
-        { duration: 550, delay: 26 + row * 58, easing: rise });
-      return;
-    }
-    const transform = getComputedStyle(node).transform;
-    const start = transform === 'none' ? 1 : new DOMMatrixReadOnly(transform).a;
-    node.getAnimations().forEach(animation => animation.cancel());
-    const outAt = 75 + row * 48, inAt = 790 + row * 100, total = inAt + 720;
-    play(node, [
-      { transform: `scaleX(${start})`, offset: 0 },
-      { transform: `scaleX(${start})`, offset: outAt / total, easing: lift },
-      { transform: 'scaleX(0)', offset: (outAt + 380) / total },
-      { transform: 'scaleX(0)', offset: inAt / total, easing: rise },
-      { transform: 'scaleX(1)', offset: 1 },
-    ], { duration: total });
+    if (mode !== 'arrival') return;
+    play(node, [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }],
+      { duration: 550, delay: 26 + row * 58, easing: rise });
   }
   function reflow() {
     reflowAfterMotion = active.size > 0;
@@ -129,11 +79,15 @@ export function createShelfTypeMotion(root) {
       splitLines(face);
     });
   }
-  function settle() {
+  function cancel() {
     for (const animation of active) animation.cancel();
     active.clear();
-    root.querySelectorAll('.a24-mask-outgoing').forEach(node => node.remove());
+    if (reflowAfterMotion) reflow();
+  }
+  function settle() {
+    reflowAfterMotion = false;
+    cancel();
     reflow();
   }
-  return { replace, rule, reflow, settle };
+  return { replace, rule, reflow, cancel, settle };
 }
