@@ -1019,5 +1019,101 @@ export const projects = [
         ]
       }
     }
+  },
+  {
+    "id": "after-us",
+    "title": "AFTER US",
+    "titleZh": "人類之後",
+    "category": "AI Film",
+    "disciplines": ["ai-film"],
+    "cover": "./media/assets/after-us/after-us-poster-640.webp",
+    "items": [
+      {
+        "type": "video",
+        "image": "./media/assets/after-us/after-us-poster.webp",
+        "small": "./media/assets/after-us/after-us-poster-640.webp",
+        "src": "./media/assets/after-us/after-us.mp4",
+        "width": 1280,
+        "height": 720,
+        "imageWidth": 1280,
+        "imageHeight": 720,
+        "smallWidth": 640,
+        "smallHeight": 360,
+        "id": "after-us/film",
+        "label": "Concept film / A fictional city in three acts",
+        "labelZh": "概念短片／虛構城市的三幕"
+      }
+    ],
+    "intro": "A future city is imagined as a place that can grow around what people leave behind. Three acts move from the waterline to the mineral surfaces, then pull back to the coastline. Kim commissioned the study for the portfolio. Three AI-generated stills are brought together through camera movement, masks, typography and original synthesized sound made with Codex.",
+    "introZh": "這座未來城市沿着人類留下的建築繼續生長。影片以遺留、生長、共生三幕展開，從水線靠近礦物表面，最後拉回海岸全景。Kim 為作品集提出製作目標。三張 AI 生成靜幀透過 Codex 協作製作的運鏡、遮罩、排版與原創合成聲音串連。",
+    "role": "Portfolio brief / AI-assisted motion study",
+    "roleZh": "作品集命題／AI 輔助動態影像研究",
+    "disclosure": "自發概念作品 · 虛構場景 · AI 生成靜幀與 Codex 輔助後期",
+    "source": {
+      "subtitle": ["A future city in three acts", "未來城市的三幕"]
+    }
+  },
+  {
+    "id": "orbit-sound-studies",
+    "title": "ORBIT — Sound Studies",
+    "titleZh": "ORBIT 聆聽習作",
+    "category": "Design",
+    "disciplines": ["design"],
+    "cover": "./media/assets/orbit-sound-studies/hero-poster-640.webp",
+    "items": [
+      {
+        "type": "image",
+        "image": "./media/assets/orbit-sound-studies/hero-poster.webp",
+        "small": "./media/assets/orbit-sound-studies/hero-poster-640.webp",
+        "src": "./media/assets/orbit-sound-studies/hero-poster.webp",
+        "width": 1600,
+        "height": 2000,
+        "imageWidth": 1600,
+        "imageHeight": 2000,
+        "smallWidth": 640,
+        "smallHeight": 800,
+        "id": "orbit-sound-studies/hero",
+        "label": "Sound as sculpture / Hero poster",
+        "labelZh": "聲音如雕塑／主海報"
+      },
+      {
+        "type": "image",
+        "image": "./media/assets/orbit-sound-studies/rhythm-editorial.webp",
+        "small": "./media/assets/orbit-sound-studies/rhythm-editorial-640.webp",
+        "src": "./media/assets/orbit-sound-studies/rhythm-editorial.webp",
+        "width": 1600,
+        "height": 2000,
+        "imageWidth": 1600,
+        "imageHeight": 2000,
+        "smallWidth": 640,
+        "smallHeight": 800,
+        "id": "orbit-sound-studies/rhythm",
+        "label": "Space for tempo / Editorial poster",
+        "labelZh": "節奏的留白／編輯式海報"
+      },
+      {
+        "type": "image",
+        "image": "./media/assets/orbit-sound-studies/web-banner.webp",
+        "small": "./media/assets/orbit-sound-studies/web-banner-640.webp",
+        "src": "./media/assets/orbit-sound-studies/web-banner.webp",
+        "width": 1920,
+        "height": 720,
+        "imageWidth": 1920,
+        "imageHeight": 720,
+        "smallWidth": 640,
+        "smallHeight": 240,
+        "id": "orbit-sound-studies/banner",
+        "label": "Sound as sculpture / Website banner",
+        "labelZh": "聲音如雕塑／網站橫幅"
+      }
+    ],
+    "intro": "A self-initiated visual identity for a fictional headphone brand. Mineral silver and ink-blue fabric give the object its silhouette, while broken elliptical lines express rhythm in the editorial poster. The original wordmark, vector graphics and bilingual layout were developed with Codex, and the product images are AI-generated concept visuals.",
+    "introZh": "一組為虛構耳機品牌設計的自發識別提案。礦物銀與墨藍織物勾勒產品輪廓，斷續的橢圓線條則在編輯海報中組成節奏。原創字標、向量圖形與雙語版式由 Codex 協作製作，產品影像屬於 AI 生成的概念視覺。",
+    "role": "Portfolio concept brief / Codex-assisted identity and layout",
+    "roleZh": "作品集概念命題／Codex 輔助識別與排版",
+    "disclosure": "自發原創概念提案 · 虛構品牌 · AI 生成產品視覺",
+    "source": {
+      "subtitle": ["Fictional headphone brand identity", "虛構耳機品牌識別"]
+    }
   }
 ];
