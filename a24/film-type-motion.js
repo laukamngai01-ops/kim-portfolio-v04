@@ -1,9 +1,13 @@
-// Lines rise through stationary apertures. On selection, the new copy starts
-// inside its aperture so the shelf remains readable between inputs.
+// Both faces travel together through the same aperture. This preserves the
+// full roll without a separate empty interval between exit and entrance.
 const measuredRise = 'linear(0, .10 7%, .30 13%, .56 20%, .77 27%, .86 34%, .94 46%, .975 60%, .993 76%, 1)';
 const supportsLinear = globalThis.CSS?.supports('animation-timing-function', measuredRise);
 const rise = supportsLinear ? measuredRise : 'cubic-bezier(.37,0,.04,1)';
 const offset = distance => `translateY(${distance}%)`;
+const changeTiming = {
+  change: { cueScale: 1, lineGap: 35, duration: 520 },
+  quick: { cueScale: .28, lineGap: 14, duration: 210 },
+};
 
 function splitLines(face) {
   if (face.children.length || !face.offsetWidth) return;
@@ -41,38 +45,66 @@ export function createShelfTypeMotion(root) {
     active.add(animation);
     animation.finished.then(() => {
       active.delete(animation);
-      animation.cancel();
+      if (!node.closest('.a24-mask-outgoing')) animation.cancel();
       if (!active.size && reflowAfterMotion) reflow();
     }, () => active.delete(animation));
+    return animation.finished;
   }
-  function replace(mask, text, mode, arrivalDelay = 0) {
-    if (mask.getAttribute('aria-label') === text) return;
-    const arriving = mode === 'arrival';
+  function replace(mask, text, mode, cue = 0) {
+    const timing = changeTiming[mode];
     const isCaption = mask.classList.contains('a24-note-text');
+    const old = timing ? mask.firstElementChild : null;
     mask.setAttribute('aria-label', text);
     const face = document.createElement('span');
     face.className = 'a24-mask-face';
     face.textContent = text;
-    mask.replaceChildren(face);
+    if (old) {
+      old.classList.add('a24-mask-outgoing');
+      old.setAttribute('aria-hidden', 'true');
+      mask.append(face);
+    } else {
+      mask.replaceChildren(face);
+    }
     if (isCaption) splitLines(face);
     if (mode === 'static') return;
-    for (const [line, ink] of inkOf(face).entries()) {
-      play(ink, [{ transform: offset(arriving ? 120 : 10) }, { transform: offset(0) }], {
-        delay: arriving ? arrivalDelay + line * 26 : (isCaption ? 18 + line * 14 : 0),
-        duration: arriving ? 550 : 240,
-        easing: rise,
-      });
+    const incoming = inkOf(face);
+    if (!timing) {
+      incoming.forEach((ink, line) => play(ink, [{ transform: offset(120) }, { transform: offset(0) }],
+        { delay: cue + line * 26, duration: 550, easing: rise }));
+      return;
     }
+
+    const outgoing = old ? inkOf(old) : [];
+    const heights = Array.from({ length: Math.max(incoming.length, outgoing.length) }, (_, line) =>
+      (outgoing[line] || incoming[line]).getBoundingClientRect().height);
+    const departures = [];
+    for (const [line, height] of heights.entries()) {
+      const options = { delay: cue * timing.cueScale + line * timing.lineGap,
+        duration: timing.duration, easing: rise };
+      if (outgoing[line]) departures.push(play(outgoing[line],
+        [{ transform: offset(0) }, { transform: `translateY(${-height}px)` }], options));
+      if (incoming[line]) play(incoming[line],
+        [{ transform: `translateY(${height}px)` }, { transform: offset(0) }], options);
+    }
+    if (old) Promise.allSettled(departures).then(() => old.remove());
   }
   function rule(node, row, mode) {
-    if (mode !== 'arrival') return;
-    play(node, [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }],
-      { duration: 550, delay: 26 + row * 58, easing: rise });
+    const delay = 26 + row * 58;
+    if (mode === 'arrival') {
+      play(node, [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }],
+        { duration: 550, delay, easing: rise });
+    } else if (mode === 'change') {
+      play(node, [
+        { transform: 'scaleX(1)', offset: 0, easing: 'ease-in' },
+        { transform: 'scaleX(.16)', offset: .32, easing: rise },
+        { transform: 'scaleX(1)', offset: 1 },
+      ], { duration: 520, delay });
+    }
   }
   function reflow() {
     reflowAfterMotion = active.size > 0;
     if (reflowAfterMotion) return;
-    root.querySelectorAll('.a24-note-text .a24-mask-face').forEach(face => {
+    root.querySelectorAll('.a24-note-text .a24-mask-face:not(.a24-mask-outgoing)').forEach(face => {
       // Reflow at the current width/font, including the one-line captions.
       face.classList.remove('a24-split-face');
       face.textContent = face.textContent;
@@ -82,6 +114,7 @@ export function createShelfTypeMotion(root) {
   function cancel() {
     for (const animation of active) animation.cancel();
     active.clear();
+    root.querySelectorAll('.a24-mask-outgoing').forEach(face => face.remove());
     if (reflowAfterMotion) reflow();
   }
   function settle() {
