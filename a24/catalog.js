@@ -10,6 +10,7 @@ const filmDetails = {
   'ai-film/ai_film_new_4': { durationSeconds: 15.1, filmNote: 'Spinning tops in the arena' },
   'ai-film/ai_film_new_3': { durationSeconds: 26.378005, filmNote: 'A handheld fan in the park' },
   'ai-film/ai_film_new_6': { durationSeconds: 21.13, filmNote: 'A pump bottle, lather and water' },
+  'after-us/film': { durationSeconds: 21, filmNote: 'Relic, growth, symbiosis' },
 };
 
 const videos = items.filter(entry => entry.item.type === 'video');
