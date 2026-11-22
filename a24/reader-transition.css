@@ -1,0 +1,43 @@
+/* Active only while the original reader hands its paper surface to the shelf. */
+#reader.a24-reader-managed { animation: none !important; transition: none !important; }
+#reader[data-cinema-transition] {
+  isolation: isolate;
+  opacity: 1 !important;
+  transform: none !important;
+  animation: none !important;
+  transition: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+#reader[data-cinema-transition]::backdrop { background: transparent !important; }
+#reader[data-cinema-transition] > .reader-layout { position: relative; z-index: 1; }
+#reader[data-cinema-transition] > .reader-top { z-index: 5; }
+.a24-reader-paper,
+.a24-reader-flight {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.a24-reader-paper { z-index: 0; }
+.a24-reader-flight { z-index: 10; overflow: hidden; }
+.a24-reader-flight > canvas {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none !important;
+  background: transparent !important;
+}
+#reader[data-cinema-transition] .a24-reader-rule-top { position: relative; border-top-color: transparent; }
+#reader[data-cinema-transition] .a24-reader-rule-bottom { border-bottom-color: transparent; }
+.a24-reader-rule {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  pointer-events: none;
+  transform-origin: 0 50%;
+}
+.a24-reader-rule-top > .a24-reader-rule { top: -1px; }
+.a24-reader-rule-bottom > .a24-reader-rule { bottom: -1px; }

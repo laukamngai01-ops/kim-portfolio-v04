@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#efefed">
+  <meta name="description" content="Kim 的影片作品與 AI 影片。">
+  <title>Kim — A sense of movement. / 4</title>
+  <base href="../../../">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="../fonts/fonts.css">
+  <link rel="stylesheet" href="shell.css">
+  <link rel="stylesheet" data-reader-style media="not all" href="../selected/shell.css">
+  <link rel="stylesheet" data-reader-style media="not all" href="../glass/glass.css">
+  <link rel="stylesheet" data-reader-style media="not all" href="../glass/reader-glass.css">
+  <link rel="stylesheet" href="missing.css">
+  <link rel="stylesheet" href="arrival.css">
+  <link rel="stylesheet" href="reader-transition.css">
+  <script type="module" src="main.js"></script>
+</head>
+<body style="margin:0;background:#efefed">
+  <main id="cinema"></main>
+  <!-- shared-reader -->
+  <dialog id="reader" aria-labelledby="reader-title">
+    <div class="overlay-top reader-top"><span id="reader-category"></span><button id="close-reader" aria-label="返回原場景">返回原場景</button></div>
+    <div class="reader-layout">
+      <section class="reader-view" aria-label="作品媒體">
+        <div id="reader-stage"></div>
+        <div class="reader-tools"><button id="previous" aria-label="上一件媒體">上一件</button><p id="media-label" aria-live="polite"></p><button id="next" aria-label="下一件媒體">下一件</button></div>
+        <div id="reader-thumbnails" aria-label="選擇系列媒體"></div>
+      </section>
+      <aside class="reader-copy"><p class="eyebrow" id="reader-number"></p><h1 id="reader-title"></h1><p id="reader-title-zh"></p><p id="reader-disclosure"></p><div class="reader-role"><span>ROLE / 創作角色</span><p id="reader-role-en"></p><p id="reader-role-zh"></p></div><p id="reader-intro-zh"></p><details><summary>Read in English</summary><p id="reader-intro-en"></p></details><a id="reader-source" target="_blank" rel="noopener">開啟原圖</a></aside>
+    </div>
+  </dialog>
+  <!-- /shared-reader -->
+  <noscript><p>請啟用 JavaScript 瀏覽 Kim 的影片作品。</p></noscript>
+</body>
+</html>

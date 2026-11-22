@@ -1,0 +1,68 @@
+:root {
+  --portfolio-gutter-x: clamp(20px, 3.2vw, 52px);
+  --portfolio-inset-left: max(var(--portfolio-gutter-x), env(safe-area-inset-left, 0px));
+  --portfolio-inset-right: max(var(--portfolio-gutter-x), env(safe-area-inset-right, 0px));
+  --portfolio-gutter-top: max(clamp(12px, 2.3vh, 26px), env(safe-area-inset-top, 0px));
+}
+
+.portfolio-masthead {
+  position: absolute;
+  z-index: 30;
+  top: var(--portfolio-gutter-top);
+  left: var(--portfolio-inset-left);
+  right: var(--portfolio-inset-right);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  height: 44px;
+  pointer-events: none;
+}
+.portfolio-masthead a {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  color: inherit;
+  text-decoration: none;
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+.portfolio-masthead .portfolio-brand {
+  grid-column: 1;
+  justify-self: start;
+  font: 700 clamp(25px, 2.1vw, 31px)/1 'Bodoni MT', Didot, 'Times New Roman', serif;
+  letter-spacing: -.065em;
+}
+.portfolio-masthead .portfolio-sections {
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 1.1vw, 18px);
+  font: 500 14px/1.2 'DM Sans', Arial, sans-serif;
+  letter-spacing: -.015em;
+}
+.portfolio-sections .a24-nav-row { display: flex; align-items: center; gap: inherit; }
+.portfolio-sections a { justify-content: center; padding-inline: 5px; }
+.portfolio-section-label { position: relative; opacity: .68; }
+.portfolio-section-label::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: -4px;
+  left: 0;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.portfolio-sections [aria-current='page'] .portfolio-section-label,
+.portfolio-sections a:focus-visible .portfolio-section-label { opacity: 1; }
+.portfolio-sections [aria-current='page'] .portfolio-section-label::after { transform: none; }
+.portfolio-masthead a:focus-visible { outline: 1px solid currentColor; outline-offset: 2px; }
+@media (hover: hover) {
+  .portfolio-sections a:hover .portfolio-section-label { opacity: 1; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .portfolio-section-label { transition: opacity 140ms ease-out; }
+}

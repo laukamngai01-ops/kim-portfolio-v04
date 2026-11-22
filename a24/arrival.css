@@ -1,0 +1,58 @@
+:root { --a24-paper: #f0f0f0; }
+.a24-shell, .a24-detail, .a24-empty-shelf { background-color: var(--a24-paper); background-image: url('./paper.png'); }
+.a24-arrival {
+  --arrival-progress: 0;
+  position: absolute;
+  top: calc(var(--portfolio-gutter-top) + 49px);
+  left: 50%;
+  width: 150px;
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 12px;
+  pointer-events: none;
+  z-index: 25;
+  opacity: 0;
+  color: #555;
+  font: 400 10px/1.3 var(--a24-sans, Arial, sans-serif);
+}
+.a24-arrival.is-visible { opacity: 1; }
+.a24-arrival-count { color: #777; font-variant-numeric: tabular-nums; }
+.a24-arrival-track { grid-column: 1 / -1; height: 1px; background: #d4d4d4; overflow: hidden; }
+.a24-arrival-track i { display: block; height: 100%; background: #555; transform: scaleX(var(--arrival-progress)); transform-origin: left; transition: transform 140ms ease-out; }
+.a24-shell:has(.a24-flat-list) {
+  display: flex;
+  flex-direction: column;
+  padding-top: calc(var(--portfolio-gutter-top) + 44px + clamp(18px, 3.2vh, 34px));
+  padding-bottom: max(118px, 15vh);
+}
+.a24-shell:has(.a24-flat-list) .a24-info { position: relative; inset: auto; flex: none; order: -1; margin: 0 0 12px var(--portfolio-inset-left); }
+.a24-stage:has(.a24-flat-list) { position: relative; inset: auto; flex: 1; min-height: 0; }
+.a24-flat-list { position:absolute; inset:0 var(--portfolio-inset-right) 0 var(--portfolio-inset-left); overflow:auto; display:grid; align-content:start; justify-content:center; grid-template-columns: repeat(auto-fit,minmax(115px,170px)); gap:18px; padding:5px; }
+.a24-flat-list[hidden] { display:none; }
+.a24-flat-list button { display:grid; justify-items:center; align-content:start; gap:9px; text-align:center; font-family:var(--a24-serif); }
+.a24-disc-thumbnail { position: relative; display: block; width: 100%; aspect-ratio: 1; }
+.a24-disc-thumbnail img {
+  display: block; width: 100%; height: 100%; border-radius: 50%;
+  mask-image: radial-gradient(circle closest-side, transparent calc(18.8% - .5px), black 18.8%);
+}
+.a24-disc-thumbnail::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(circle closest-side, transparent 12.5%, #79827d66 12.8%, transparent 13.5%, transparent 15.6%, #fff9 15.9%, transparent 16.3%),
+    linear-gradient(140deg, #62706d36, #c4c8c529 48%, #7b827d4a);
+  mask-image: radial-gradient(circle closest-side, transparent 12.5%, black calc(12.5% + .5px), black 18.8%, transparent calc(18.8% + .5px));
+}
+@media (max-width: 767px) {
+  .a24-arrival { top: auto; bottom: calc(max(18px, env(safe-area-inset-bottom)) + 66px); }
+  .a24-shell:has(.a24-flat-list) { padding-top: calc(var(--portfolio-gutter-top) + 58px); padding-bottom: max(84px, calc(68px + env(safe-area-inset-bottom))); }
+}
+@media (max-height: 480px) and (orientation: landscape) {
+  .a24-shell:has(.a24-flat-list) { padding-top: calc(var(--portfolio-gutter-top) + 48px); padding-bottom: 66px; }
+}
+@media (max-width: 767px) and (max-height: 480px) and (min-aspect-ratio: 6/5) {
+  .a24-arrival { top: 10px; right: 12px; bottom: auto; left: auto; width: 132px; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .a24-arrival-track i { transition: none; }
+}

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Kim — Photography and visual design from the selected works portfolio.">
+  <title>Kim — Gallery · V04</title>
+  <script>
+    // A legacy bookmark can redirect or restore the vinyl masthead before first paint.
+    if (new URLSearchParams(location.search).get('edition') === 'vinyl' || !/^#helix(?:\/|$)/.test(location.hash)) {
+      document.documentElement.hidden = true;
+    }
+  </script>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="../fonts/fonts.css">
+  <link rel="stylesheet" href="../selected/shell.css">
+  <link rel="stylesheet" href="../selected/sphere.css">
+  <link rel="stylesheet" href="../selected/discs.css">
+  <link rel="stylesheet" href="../selected/helix.css">
+  <link rel="stylesheet" href="./glass.css">
+  <link rel="stylesheet" href="./sphere-glass.css">
+  <link rel="stylesheet" href="./scenes-glass.css">
+  <link rel="stylesheet" href="./reader-glass.css">
+  <link rel="stylesheet" href="../portfolio-header.css">
+  <script type="module" src="./entry.js"></script>
+</head>
+<body data-scene="helix" data-glass>
+  <svg class="optics-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" width="0" height="0">
+    <defs>
+      <filter id="optical-rim" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
+        <feImage href="./lens-map.png" x="0%" y="0%" width="100%" height="100%" preserveAspectRatio="none" result="lensMap"/>
+        <feDisplacementMap in="SourceGraphic" in2="lensMap" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+    </defs>
+  </svg>
+  <a class="skip-link" href="#scene-host">進入作品</a>
+  <header class="portfolio-masthead">
+    <a class="portfolio-brand" href="../a24/" aria-label="Kim 首頁">Kim</a>
+    <nav class="portfolio-sections scene-nav" aria-label="作品導覽">
+      <a href="../a24/" data-scene-link="discs" aria-label="Films · 影片"><span class="portfolio-section-label">Films</span></a>
+      <a href="#helix" data-scene-link="helix" aria-current="page" aria-label="Gallery · 攝影與設計"><span class="portfolio-section-label">Gallery</span></a>
+    </nav>
+  </header>
+  <div class="gallery-tools" role="group" aria-label="畫廊工具">
+    <div id="gallery-filter-slot"></div>
+    <button id="open-index" class="index-toggle glass-action" aria-controls="index-dialog" aria-haspopup="dialog"><i class="index-glyph" aria-hidden="true"></i>Index <span>目錄</span></button>
+  </div>
+  <template id="vinyl-masthead">
+    <header class="site-header">
+      <a class="wordmark" href="../a24/" aria-label="Kim 首頁">kim<span>04</span></a>
+      <nav class="scene-nav" aria-label="作品場景">
+        <a href="#discs" data-scene-link="discs">Films<span>影片</span></a>
+        <a href="#helix" data-scene-link="helix">Gallery<span>攝影與設計</span></a>
+      </nav>
+    </header>
+  </template>
+  <main id="scene-host" tabindex="-1" aria-label="攝影與設計畫廊"></main>
+  <footer class="site-footer"><span id="scene-caption"></span><span>Kim / Selected works</span></footer>
+  <dialog id="index-dialog" aria-labelledby="index-title">
+    <div class="overlay-top">
+      <h1 id="index-title">Index <span>目錄</span></h1>
+      <a class="index-home" href="../a24/">首頁</a>
+      <button id="close-index" aria-label="關閉目錄">關閉</button>
+    </div>
+    <div id="index-scopes" role="group" aria-label="目錄範圍" hidden>
+      <button type="button" data-index-scope="images" aria-controls="index-images" aria-pressed="true">本頁圖片 <span></span></button>
+      <button type="button" data-index-scope="projects" aria-controls="index-list" aria-pressed="false">全部作品 <span></span></button>
+    </div>
+    <div id="index-images" hidden></div>
+    <div id="index-list"></div>
+    <p class="index-note">Photography · Film · AI film · Visual design</p>
+  </dialog>
+  <dialog id="reader" aria-labelledby="reader-title">
+    <div class="overlay-top reader-top"><span id="reader-category"></span><button id="close-reader" aria-label="返回原場景">返回原場景</button></div>
+    <div class="reader-layout">
+      <section class="reader-view" aria-label="作品媒體">
+        <div id="reader-stage"></div>
+        <div class="reader-tools"><button id="previous" aria-label="上一件媒體">上一件</button><p id="media-label" aria-live="polite"></p><button id="next" aria-label="下一件媒體">下一件</button></div>
+        <div id="reader-thumbnails" aria-label="選擇系列媒體"></div>
+      </section>
+      <aside class="reader-copy"><p class="eyebrow" id="reader-number"></p><h1 id="reader-title"></h1><p id="reader-title-zh"></p><p id="reader-disclosure"></p><div class="reader-role"><span>ROLE / 創作角色</span><p id="reader-role-en"></p><p id="reader-role-zh"></p></div><p id="reader-intro-zh"></p><details><summary>Read in English</summary><p id="reader-intro-en"></p></details><a id="reader-source" target="_blank" rel="noopener">開啟原圖</a></aside>
+    </div>
+  </dialog>
+  <p id="app-status" class="sr-only" role="status"></p>
+  <noscript>請啟用 JavaScript 以瀏覽互動作品集。<a href="../a24/">前往首頁</a></noscript>
+</body>
+</html>

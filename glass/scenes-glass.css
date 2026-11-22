@@ -1,0 +1,445 @@
+/* Opt-in scene layout. The shared glass skin/lens lives in the /glass/ shell. */
+body[data-glass] .discs-scene,
+body[data-glass] .helix-root { --scene-inset: 28px; }
+
+/* Cinema: one filter track, one independent list action, one quiet transport. */
+body[data-glass] .discs-filters {
+  top: 20px; right: var(--scene-inset); gap: 10px; padding: 0;
+  background: transparent; box-shadow: none;
+}
+/* These controls cross moving disc artwork; their local surface must stay readable on a dark frame. */
+body[data-glass] .discs-filters {
+  --track-fill: #e4e5e2f0;
+  --action-fill: #e5e6e3f2;
+}
+body[data-glass] .discs-filter-track { display: flex; align-items: center; gap: 2px; }
+:where(body[data-glass]) .discs-filter-track > button {
+  min-height: 36px; padding: 8px 14px; font-size: 12px;
+  border: 0; background: transparent; opacity: 1; box-shadow: none;
+}
+:where(body[data-glass]) .discs-filters button[aria-pressed=true] { box-shadow: none; }
+body[data-glass] .discs-filters .discs-list-toggle {
+  min-width: 76px; min-height: 44px; margin: 0; padding: 10px 14px;
+  font-size: 12px; opacity: 1;
+}
+body[data-glass] .discs-heading { left: var(--scene-inset); top: 24px; }
+body[data-glass] .discs-caption { bottom: 18px; width: min(660px, calc(100% - 48px)); }
+body[data-glass] .discs-controls {
+  width: fit-content; max-width: 100%; gap: 6px; margin: 13px auto 0; padding: 5px;
+  border: 1px solid #373e371c; border-radius: 14px; background: #f1f1eff2;
+  box-shadow: 0 4px 16px #252d2510;
+}
+body[data-glass] .discs-controls button {
+  min-height: 44px; min-width: 72px; width: auto; padding: 10px 16px;
+  font-size: 12px; line-height: 1.2; font-weight: 500; white-space: nowrap;
+}
+body[data-glass] .discs-controls .discs-flip {
+  min-height: 44px!important; padding: 10px 16px!important; border-bottom: 0!important;
+}
+body[data-glass] .discs-counter { min-width: 42px; font-size: 10px; color: #555855; opacity: 1; }
+body[data-glass] .discs-instructions { margin-top: 12px; color: #565a57; opacity: 1; }
+body[data-glass] .discs-description,
+body[data-glass] .discs-disclosure { background: #f1f1efeb; border-radius: 4px; }
+body[data-glass] .discs-list {
+  top: 76px; right: var(--scene-inset); width: min(440px, calc(100% - 32px));
+  max-height: calc(100% - 96px); padding: 6px 16px 12px;
+  background: #f7f7f3f5; border: 1px solid #ffffffd9; border-radius: 18px;
+  box-shadow: 0 16px 48px #2025221c, inset 0 1px #fff;
+  -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+}
+body[data-glass] .discs-list button,
+body[data-glass] .discs-fallback button {
+  min-height: 76px; gap: 12px; padding: 12px 2px; border-bottom-color: #2329231a;
+  border-radius: 0; color: #202520; background: transparent; box-shadow: none;
+  font-size: 13px; line-height: 1.35;
+}
+body[data-glass] .discs-list button > span:nth-child(2),
+body[data-glass] .discs-fallback button > span:nth-child(2) { min-width: 0; overflow-wrap: anywhere; }
+body[data-glass] .discs-list button > span:last-child,
+body[data-glass] .discs-fallback button > span:last-child { flex-shrink: 0; font-size: 10px; color: #596159; }
+body[data-glass] .discs-list button[aria-current=true] { color: #111911; }
+body[data-glass] .discs-list img,
+body[data-glass] .discs-fallback img { width: 46px; height: 46px; }
+body[data-glass] .discs-list small,
+body[data-glass] .discs-fallback small { color: #5b625b; opacity: 1; }
+body[data-glass] .discs-fallback {
+  inset: 146px 28px 128px; padding: 0 18px 14px; border-radius: 16px;
+  background: #f7f7f3f5; border: 1px solid #ffffffd9;
+}
+body[data-glass] .discs-fallback > div { grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr)); }
+
+/* Gallery: dark, readable controls sit above the imagery, without white cards. */
+body[data-glass] .helix-heading {
+  top: 24px; left: var(--scene-inset); right: 138px; gap: 24px; align-items: center;
+}
+body[data-glass] .helix-heading h1 { font-size: 20px; margin-top: 0; }
+body[data-glass] .helix-eyebrow { color: #b2b6bb; }
+body[data-glass] .helix-filters { gap: 2px; padding-right: 0; margin: 0; }
+:where(body[data-glass]) .helix-filters > button {
+  min-height: 36px; padding: 8px 15px; border-color: transparent;
+  background: transparent; font-size: 12px; color: #d6dae0;
+}
+:where(body[data-glass]) .helix-filters > button[aria-pressed=true] { border-color: transparent; color: #fff; }
+body[data-glass] .helix-index-toggle {
+  top: 24px; right: var(--scene-inset); min-width: 94px; min-height: 44px;
+  padding: 10px 14px; font-size: 12px!important;
+}
+body[data-glass] .helix-index-toggle.glass-action { position: absolute; }
+body[data-glass] .helix-footer {
+  bottom: 20px; width: min(650px, calc(100% - 48px)); display: block;
+  padding: 10px; border: 1px solid #ffffff24; border-radius: 18px;
+  background: #17191df5; color: #f4f5f6; box-shadow: 0 10px 32px #0005;
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  pointer-events: auto;
+}
+body[data-glass] .helix-caption {
+  gap: 12px; padding: 0 0 9px; border: 0; border-radius: 0;
+  color: inherit; background: transparent; box-shadow: none;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+body[data-glass] .helix-caption-image { width: 58px; height: 44px; border-radius: 7px; }
+body[data-glass] .helix-caption-project,
+body[data-glass] .helix-caption-zh { color: #b5bac3; }
+body[data-glass] .helix-caption-title { font-weight: 500; font-size: 13px; }
+body[data-glass] .helix-open { width: auto; min-width: 62px; min-height: 44px; padding: 10px 14px; font-size: 12px!important; }
+body[data-glass] .helix-navigation {
+  position: relative; min-height: 44px; margin: 0; padding-top: 6px; gap: 12px;
+  border-top: 1px solid #ffffff18;
+}
+body[data-glass] .helix-instruction { color: #bdc2c9; font-size: 10px; }
+body[data-glass] .helix-instruction span { display: none; }
+body[data-glass] .helix-stepper { gap: 9px; }
+body[data-glass] .helix-stepper button { width: auto; min-width: 64px; min-height: 44px; padding: 10px 12px; font-size: 11px; }
+body[data-glass] .helix-count { color: #d3d7de; min-width: 42px; text-align: center; }
+body[data-glass] .helix-pause { min-height: 44px; padding: 10px 13px; font-size: 11px!important; }
+/* Actions inside a shared panel are quiet text targets, not separate lenses. */
+body[data-glass] .helix-footer .glass-action,
+body[data-glass] .discs-controls .glass-action {
+  border: 1px solid transparent; border-radius: 9px; background: transparent;
+  box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none;
+  transition: background-color 140ms ease, color 140ms ease;
+}
+body[data-glass] .helix-footer .glass-action::before,
+body[data-glass] .helix-footer .glass-action::after,
+body[data-glass] .discs-controls .glass-action::before,
+body[data-glass] .discs-controls .glass-action::after { display: none; }
+body[data-glass] .helix-footer .helix-open { background: #ffffff12; border-color: #ffffff17; color: #fff; }
+body[data-glass] .discs-controls .discs-open { background: #fff9; border-color: #4b554b1c; }
+body[data-glass] .helix-footer .helix-pause[aria-pressed=true] { background: #ffffff0c; color: #fff; }
+body[data-glass] .helix-footer .glass-action:focus-visible,
+body[data-glass] .discs-controls .glass-action:focus-visible { outline-offset: -3px; }
+body[data-glass] .helix-footer .glass-action:active:not(:disabled),
+body[data-glass] .discs-controls .glass-action:active:not(:disabled) { transform: none; }
+body[data-glass] .helix-reading .helix-footer { pointer-events: none; }
+body[data-glass] .helix-fallback :is(.helix-index-toggle, .helix-pause) { display: none; }
+body[data-glass] .helix-index {
+  inset: 94px 24px 164px; padding: 24px; border-color: #ffffff24; border-radius: 20px;
+  background: #101216f5; box-shadow: 0 24px 64px #0006;
+}
+body[data-glass] .helix-index-heading { margin-bottom: 20px; }
+body[data-glass] .helix-index-heading p { color: #b5bac3; }
+body[data-glass] .helix-index-grid { gap: 24px 18px; }
+body[data-glass] .helix-index-item { border-radius: 8px; background: transparent; }
+body[data-glass] .helix-index-item img { border-radius: 7px; background: #08090b; }
+body[data-glass] .helix-index-item small { color: #b0b6bf; }
+body[data-glass] .helix-index-item .helix-index-position { margin-bottom: 6px; color: #aeb6c0; font-size: 9px; font-variant-numeric: tabular-nums; }
+body[data-glass] .helix-root button:focus-visible { outline-color: #ddeaff; outline-offset: 4px; }
+body[data-glass] .discs-scene button:focus-visible { outline-color: #415545; outline-offset: 4px; }
+
+@media (hover: hover) and (pointer: fine) {
+  body[data-glass] .helix-footer .glass-action:hover:not(:disabled) { background: #ffffff12; box-shadow: none; }
+  body[data-glass] .discs-controls .glass-action:hover:not(:disabled) { background: #ffffffb3; box-shadow: none; }
+  body[data-glass] .discs-list button:hover,
+  body[data-glass] .discs-fallback button:hover { background: #e6ebe67a; }
+  body[data-glass] .helix-index-item:hover img { outline-color: #bac7dc; }
+}
+
+@media (max-width: 767px) {
+  body[data-glass] .discs-scene,
+  body[data-glass] .helix-root { --scene-inset: 16px; }
+  body[data-glass] .helix-heading { top: 20px; right: 16px; display: block; }
+  body[data-glass] .helix-heading h1 { font-size: 18px; }
+  body[data-glass] .helix-filters { width: fit-content; margin-top: 18px; }
+  body[data-glass] .helix-index-toggle { top: 20px; min-width: 86px; padding: 10px 12px; font-size: 11px!important; }
+  body[data-glass] .helix-footer { width: calc(100% - 24px); max-width: 550px; bottom: 12px; padding: 8px; border-radius: 15px; }
+  body[data-glass] .helix-caption { gap: 9px; padding: 0 0 8px; border-radius: 0; }
+  body[data-glass] .helix-caption-image { width: 44px; height: 44px; }
+  body[data-glass] .helix-caption-project { display: none; }
+  body[data-glass] .helix-caption-title { font-size: 12px; }
+  body[data-glass] .helix-open { min-width: 56px; padding: 10px 12px; }
+  body[data-glass] .helix-navigation { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; padding-top: 5px; }
+  body[data-glass] .helix-instruction { display: none; }
+  body[data-glass] .helix-stepper { gap: 6px; justify-content: space-between; }
+  body[data-glass] .helix-stepper button { min-width: 58px; padding: 10px; }
+  body[data-glass] .helix-pause { min-width: 80px; padding: 10px; font-size: 10px!important; }
+  body[data-glass] .helix-index { inset: 114px 14px 146px; padding: 16px; border-radius: 16px; }
+  body[data-glass] .helix-index-grid { gap: 20px 13px; }
+}
+
+@media (max-width: 700px) {
+  body[data-glass] .discs-heading { top: 18px; width: calc(100% - 32px); }
+  body[data-glass] .discs-filters { top: 92px; left: 12px; right: 12px; justify-content: space-between; gap: 6px; }
+  body[data-glass] .discs-filter-track > button { min-height: 36px; padding: 8px 11px; font-size: 11px; }
+  body[data-glass] .discs-filters .discs-list-toggle { min-width: 70px; padding: 10px; font-size: 11px; }
+  body[data-glass] .discs-caption { width: calc(100% - 24px); bottom: 16px; }
+  body[data-glass] .discs-controls { width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px 2px; margin-top: 10px; }
+  body[data-glass] .discs-counter { grid-row: 1; grid-column: 1 / -1; }
+  body[data-glass] .discs-prev { grid-row: 2; grid-column: 1; }
+  body[data-glass] .discs-flip { grid-row: 2; grid-column: 2; }
+  body[data-glass] .discs-open { grid-row: 2; grid-column: 3; }
+  body[data-glass] .discs-next { grid-row: 2; grid-column: 4; }
+  body[data-glass] .discs-controls button { min-width: 0; min-height: 44px; padding: 10px 6px; font-size: 11px; }
+  body[data-glass] .discs-controls .discs-flip { padding: 10px 5px!important; }
+  body[data-glass] .discs-list { top: 146px; right: 12px; width: calc(100% - 24px); max-height: calc(100% - 162px); padding: 5px 12px 10px; }
+  body[data-glass] .discs-fallback { inset: 152px 12px 132px; padding: 0 12px 10px; }
+  body[data-glass] .discs-fallback > div { display: block; }
+  body[data-glass] .discs-instructions { margin-top: 9px; font-size: 9px; }
+}
+
+@media (max-height: 620px) and (min-width: 701px) {
+  body[data-glass] .discs-heading,
+  body[data-glass] .discs-filters { top: 12px; }
+  body[data-glass] .discs-caption { bottom: 8px; }
+  body[data-glass] .discs-controls { margin-top: 5px; }
+  body[data-glass] .discs-instructions { margin-top: 5px; }
+}
+
+/* Small landscape: reserve a compact top rail and one bottom action row. */
+@media (max-height: 450px) and (min-width: 480px) {
+  body[data-glass] .discs-heading { top: 10px; left: 14px; width: 31%; }
+  body[data-glass] .discs-title { font-size: 16px; }
+  body[data-glass] .discs-filters { top: 6px; right: 12px; left: auto; gap: 6px; }
+  body[data-glass] .discs-filter-track > button { padding: 8px 10px; font-size: 10px; }
+  body[data-glass] .discs-filters .discs-list-toggle { min-width: 66px; font-size: 10px; }
+  body[data-glass] .discs-caption { bottom: 4px; width: auto; max-width: calc(100% - 24px); padding: 0; background: transparent; }
+  body[data-glass] .discs-controls { display: flex; gap: 7px; margin: 0; }
+  body[data-glass] .discs-controls button { min-width: 66px; padding: 10px 12px; font-size: 10px; }
+  body[data-glass] .discs-controls .discs-flip { padding: 10px 12px!important; }
+  body[data-glass] .discs-counter { min-width: 34px; }
+  body[data-glass] .discs-description,
+  body[data-glass] .discs-disclosure,
+  body[data-glass] .discs-instructions { display: none; }
+  body[data-glass] .discs-list { top: 55px; max-height: calc(100% - 62px); width: min(380px, calc(100% - 24px)); }
+  body[data-glass] .discs-fallback { inset: 56px 14px 54px; }
+  body[data-glass] .discs-list button,
+  body[data-glass] .discs-fallback button { min-height: 58px; padding: 8px 2px; font-size: 11px; }
+  body[data-glass] .discs-list img,
+  body[data-glass] .discs-fallback img { width: 36px; height: 36px; }
+  body[data-glass] .helix-heading { top: 7px; left: 14px; right: 112px; display: flex; align-items: center; gap: 14px; }
+  body[data-glass] .helix-heading h1 { margin: 0; font-size: 14px; }
+  body[data-glass] .helix-filters { margin: 0; }
+  body[data-glass] .helix-filters > button { padding: 8px 10px; font-size: 10px; }
+  body[data-glass] .helix-index-toggle { top: 7px; right: 14px; font-size: 10px!important; }
+  body[data-glass] .helix-footer { bottom: 6px; width: calc(100% - 24px); max-width: 800px; padding: 6px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; border-radius: 13px; }
+  body[data-glass] .helix-caption { gap: 7px; padding: 0; border-radius: 0; }
+  body[data-glass] .helix-caption-image { width: 36px; height: 36px; }
+  body[data-glass] .helix-caption-title { font-size: 10px; }
+  body[data-glass] .helix-open { min-width: 44px; padding: 9px; font-size: 10px!important; }
+  body[data-glass] .helix-navigation { display: flex; gap: 4px; margin: 0; padding: 0 0 0 6px; border-top: 0; border-left: 1px solid #ffffff18; }
+  body[data-glass] .helix-instruction { display: none; }
+  body[data-glass] .helix-stepper { gap: 5px; }
+  body[data-glass] .helix-stepper button { min-width: 52px; padding: 10px 8px; font-size: 10px; }
+  body[data-glass] .helix-count { min-width: 36px; font-size: 9px; }
+  body[data-glass] .helix-pause { min-width: 64px; padding: 10px 8px; font-size: 9px!important; }
+  body[data-glass] .helix-index { inset: 58px 12px 70px; padding: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-glass] .discs-scene *,
+  body[data-glass] .helix-root * { scroll-behavior: auto!important; }
+}
+
+@media (forced-colors: active) {
+  body[data-glass] .discs-list,
+  body[data-glass] .discs-fallback,
+  body[data-glass] .helix-footer,
+  body[data-glass] .helix-caption,
+  body[data-glass] .helix-index { background: Canvas; color: CanvasText; border: 1px solid CanvasText; box-shadow: none; }
+  body[data-glass] .discs-scene button,
+  body[data-glass] .helix-root button { border: 1px solid ButtonText; }
+  body[data-glass] .helix-footer .glass-action,
+  body[data-glass] .discs-controls .glass-action { background: ButtonFace; color: ButtonText; border: 1px solid ButtonText; }
+  body[data-glass] .discs-scene button[aria-pressed=true],
+  body[data-glass] .helix-root button[aria-pressed=true] { outline: 2px solid Highlight; }
+}
+
+/* The Gallery filters and sole Index action now live in the shared masthead. */
+body[data-glass] .helix-caption-image,
+body[data-glass] .helix-index-item img {
+  object-fit: contain;
+  background: #080909;
+}
+body[data-glass] .helix-root:not(.helix-fallback) .helix-index { top: 12px; }
+body[data-glass] .helix-fallback .helix-index { top: 72px; }
+@media (max-width:767px) {
+  body[data-glass] .helix-fallback .helix-index { top: 64px; }
+}
+@media (max-height:450px) and (min-width:480px) {
+  body[data-glass] .helix-fallback .helix-index { top: 42px; }
+}
+
+/* Cinema has three real layout rows. Three measures the middle canvas cell;
+   neither the selected record nor its text needs to share a painted area. */
+body[data-glass] .discs-scene {
+  display: grid;
+  grid-template: "toolbar" auto "stage" minmax(0, 1fr) "caption" auto / minmax(0, 1fr);
+  gap: 10px;
+  padding: 16px var(--scene-inset) 12px;
+  min-width: 0;
+  min-height: 0;
+}
+body[data-glass] .discs-scene > .discs-canvas {
+  grid-area: stage; position: relative; inset: auto; width: 100%; height: 100%;
+  min-width: 0; min-height: 0; overflow: hidden;
+}
+body[data-glass] .discs-toolbar {
+  grid-area: toolbar; position: relative; z-index: 2;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start;
+  gap: 18px; min-width: 0; background: #f1f1ef;
+}
+body[data-glass] .discs-toolbar .discs-heading {
+  position: static; inset: auto; width: 100%; max-width: 335px; min-width: 0; padding: 0;
+}
+body[data-glass] .discs-toolbar .discs-title {
+  position: relative; overflow: hidden; width: 100%; max-width: none;
+  font-family: 'Bodoni MT', Didot, 'Times New Roman', serif;
+  font-size: clamp(29px, 2.35vw, 32px); font-weight: 400; line-height: 1.04;
+  letter-spacing: -.035em; text-transform: uppercase; text-wrap: balance;
+  margin: 0; padding: .06em 0 .08em; box-sizing: content-box;
+}
+body[data-glass] .discs-title-face { position: absolute; inset: .06em 0 auto; display: block; }
+body[data-glass] .discs-title-measure { display: block; visibility: hidden; pointer-events: none; }
+body[data-glass] .discs-title-rule {
+  display: block; height: 1px; width: 100%; margin: 7px 0 7px;
+  background: #272c29; transform-origin: left center;
+}
+body[data-glass] .discs-toolbar .discs-title-zh { font-size: 11px; line-height: 1.45; margin: 0; }
+body[data-glass] .discs-subtitle { overflow: hidden; min-height: 17px; }
+body[data-glass] .discs-subtitle-motion { display: flex; align-items: baseline; gap: 9px; }
+body[data-glass] .discs-subtitle .discs-title-zh { white-space: nowrap; }
+body[data-glass] .discs-toolbar .discs-disclosure {
+  display: block; flex: 0 0 auto; width: auto; max-width: none; margin: 0; padding: 0 0 0 9px;
+  border-left: 1px solid #79817570; border-radius: 0; color: #4b534a; background: transparent;
+  font-size: 11px; font-weight: 500; line-height: 1.4; opacity: 1;
+  white-space: nowrap; overflow: visible; -webkit-line-clamp: unset;
+}
+body[data-glass] .discs-toolbar dl { display: flex; flex-wrap: wrap; gap: 4px 18px; margin-top: 7px; }
+body[data-glass] .discs-toolbar dl > div { justify-content: flex-start; gap: 7px; border: 0; padding: 0; }
+body[data-glass] .discs-toolbar dd { max-width: none; text-align: left; }
+body[data-glass] .discs-toolbar .discs-filters {
+  position: static; inset: auto; justify-self: end; margin: 0; padding: 0; min-width: 0;
+}
+body[data-glass] .discs-scene > .discs-caption {
+  grid-area: caption; position: relative; inset: auto; transform: none;
+  width: 100%; max-width: none; min-width: 0; margin: 0; padding: 0;
+  display: grid; justify-items: center; gap: 6px; align-self: end;
+  background: #f1f1ef;
+}
+body[data-glass] .discs-description { display: none!important; }
+body[data-glass] .discs-caption .discs-controls {
+  display: grid; grid-template-columns: minmax(48px, 1fr) 36px minmax(70px, 1.2fr) minmax(80px, 1.3fr) minmax(48px, 1fr);
+  width: min(460px, 100%); max-width: 100%; margin: 0; padding: 4px;
+  gap: 3px; align-items: center;
+}
+body[data-glass] .discs-caption .discs-controls > * { grid-row: 1; min-width: 0; }
+body[data-glass] .discs-caption .discs-prev { grid-column: 1; }
+body[data-glass] .discs-caption .discs-counter { grid-column: 2; justify-self: center; min-width: 0; font-size: 10px; }
+body[data-glass] .discs-caption .discs-flip { grid-column: 3; }
+body[data-glass] .discs-caption .discs-open { grid-column: 4; }
+body[data-glass] .discs-caption .discs-next { grid-column: 5; }
+body[data-glass] .discs-caption .discs-controls button {
+  min-width: 0; min-height: 44px; width: 100%; padding: 10px 8px;
+  font-size: 12px; line-height: 1.2;
+}
+body[data-glass] .discs-caption .discs-controls .discs-flip { padding: 10px 7px!important; }
+body[data-glass] .discs-caption .discs-instructions {
+  display: block; margin: 0; padding: 0; font-size: 10px; line-height: 1.4; color: #5c625b;
+}
+body[data-glass] .discs-caption .discs-pointer-help { display: inline; }
+body[data-glass] .discs-caption .discs-touch-help { display: none; }
+body[data-glass] .discs-caption .discs-key-help {
+  display: block; position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%);
+}
+body[data-glass] .discs-scene > .discs-list,
+body[data-glass] .discs-scene > .discs-fallback {
+  grid-area: stage; position: relative; inset: auto; min-height: 0; max-height: 100%;
+  width: 100%; align-self: stretch; margin: 0; overflow-y: auto;
+}
+body[data-glass] .discs-scene > .discs-list { width: min(440px, 100%); justify-self: end; }
+body[data-glass] .discs-canvas[hidden],
+body[data-glass] .discs-fallback[hidden],
+body[data-glass] .discs-list[hidden],
+body[data-glass] .discs-disclosure[hidden] { display: none!important; }
+
+@media (max-width: 780px) {
+  body[data-glass] .discs-scene { padding: 12px 12px 8px; gap: 8px; }
+  body[data-glass] .discs-toolbar { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  body[data-glass] .discs-toolbar .discs-title { font-size: 30px; max-width: none; }
+  body[data-glass] .discs-toolbar .discs-heading { max-width: 335px; }
+  body[data-glass] .discs-toolbar .discs-title-zh { font-size: 10px; }
+  body[data-glass] .discs-toolbar dl { display: none; }
+  body[data-glass] .discs-toolbar .discs-filters { width: 100%; justify-self: stretch; justify-content: space-between; gap: 6px; }
+  body[data-glass] .discs-toolbar .discs-filter-track > button { padding: 8px 11px; font-size: 11px; }
+  body[data-glass] .discs-toolbar .discs-list-toggle { min-width: 70px; padding: 10px; font-size: 11px; }
+  body[data-glass] .discs-caption .discs-controls {
+    grid-template-columns: minmax(44px, 1fr) 28px minmax(56px, 1.12fr) minmax(64px, 1.25fr) minmax(44px, 1fr);
+    gap: 2px;
+  }
+  body[data-glass] .discs-caption .discs-controls button { font-size: 11px; padding: 10px 4px; }
+  body[data-glass] .discs-caption .discs-controls .discs-flip { padding: 10px 4px!important; }
+  body[data-glass] .discs-toolbar .discs-disclosure { font-size: 10px; }
+  body[data-glass] .discs-caption .discs-instructions { font-size: 9px; }
+  body[data-glass] .discs-caption .discs-pointer-help { display: none; }
+  body[data-glass] .discs-caption .discs-touch-help { display: inline; }
+}
+
+@media (max-height: 600px) {
+  body[data-glass] .discs-scene { padding-block: 6px; gap: 5px; }
+  body[data-glass] .discs-toolbar .discs-title { font-size: 26px; }
+  body[data-glass] .discs-toolbar dl { display: none; }
+  body[data-glass] .discs-caption .discs-instructions {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%);
+  }
+}
+
+@media (max-height: 450px) and (min-width: 480px) {
+  body[data-glass] .discs-scene {
+    grid-template: "title filters" auto "stage caption" minmax(0, 1fr) / minmax(0, 1fr) clamp(238px, 36vw, 286px);
+    padding: 6px 10px; gap: 8px;
+  }
+  body[data-glass] .discs-toolbar {
+    display: contents;
+  }
+  body[data-glass] .discs-toolbar .discs-heading { grid-area: title; padding-right: 0; }
+  body[data-glass] .discs-toolbar .discs-title { font-size: clamp(16px, 3.17vw, 18px); line-height: 1.05; margin: 0; }
+  body[data-glass] .discs-title-rule { margin: 4px 0; }
+  body[data-glass] .discs-toolbar .discs-title-zh { font-size: 9px; line-height: 1.3; }
+  body[data-glass] .discs-subtitle { min-height: 14px; }
+  body[data-glass] .discs-subtitle-motion { flex-direction: row; align-items: baseline; gap: 7px; }
+  body[data-glass] .discs-toolbar .discs-disclosure { font-size: 9px; padding-left: 0; border-left: 0; }
+  body[data-glass] .discs-toolbar .discs-filters { grid-area: filters; align-self: start; width: 100%; justify-content: flex-start; gap: 0; }
+  body[data-glass] .discs-toolbar .discs-filter-track {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: calc(100% - 61px); gap: 1px; padding: 3px;
+  }
+  body[data-glass] .discs-toolbar .discs-filter-track > button { min-height: 40px; padding: 8px 2px; font-size: 10px; }
+  body[data-glass] .discs-toolbar .discs-list-toggle {
+    position: static; top: auto; right: auto; left: auto; bottom: auto; margin-left: auto;
+    min-width: 60px; width: 60px; min-height: 40px; padding: 9px 6px; font-size: 10px;
+  }
+  body[data-glass] .discs-scene > .discs-caption { display: block; align-self: end; }
+  body[data-glass] .discs-caption .discs-controls {
+    width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: 14px 40px 40px; gap: 4px; padding: 4px;
+  }
+  body[data-glass] .discs-caption .discs-counter { grid-row: 1; grid-column: 1 / -1; font-size: 10px; }
+  body[data-glass] .discs-caption .discs-prev { grid-row: 2; grid-column: 1; }
+  body[data-glass] .discs-caption .discs-next { grid-row: 2; grid-column: 2; }
+  body[data-glass] .discs-caption .discs-flip { grid-row: 3; grid-column: 1; }
+  body[data-glass] .discs-caption .discs-open { grid-row: 3; grid-column: 2; }
+  body[data-glass] .discs-caption .discs-controls button { min-height: 40px; font-size: 11px; padding: 8px 6px; }
+  body[data-glass] .discs-caption .discs-controls .discs-flip { min-height: 40px!important; padding: 8px 6px!important; }
+  body[data-glass] .discs-scene > .discs-list,
+  body[data-glass] .discs-scene > .discs-fallback { min-width: 0; width: 100%; padding: 6px 9px; }
+  body[data-glass] .discs-list button,
+  body[data-glass] .discs-fallback button { gap: 8px; font-size: 11px; }
+}

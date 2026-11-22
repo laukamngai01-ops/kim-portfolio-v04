@@ -1,0 +1,181 @@
+/* Overview only. Shared glass.css owns the rail, rim, lens and action material. */
+
+body[data-glass] .sphere-toolbar {
+  --track-fill: #d6d8d5ee;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  bottom: 14px;
+  left: 26px;
+  right: 26px;
+  font-family: 'DM Sans', 'Microsoft JhengHei', sans-serif;
+}
+
+body[data-glass] .sphere-shape-control.glass-track {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0;
+  width: min(440px, calc(100% - 198px));
+  padding: 3px;
+  flex: 0 1 440px;
+}
+
+body[data-glass] .sphere-filters.glass-track {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  width: 184px;
+  padding: 3px;
+  flex: 0 0 184px;
+}
+
+/* Labels remain above the shared decorative sliding lens. */
+body[data-glass] :is(.sphere-shape-control, .sphere-filters) > button {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: #465052;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-shadow: 0 1px 0 #ffffff45;
+  transition: color 150ms ease;
+  touch-action: manipulation;
+}
+
+body[data-glass] .sphere-shape-control > button {
+  min-height: 44px;
+  padding: 7px 8px;
+  gap: 6px;
+  font-size: 12px;
+  letter-spacing: -.015em;
+  text-transform: capitalize;
+}
+
+body[data-glass] .sphere-filters > button {
+  min-height: 36px;
+  padding: 7px 10px;
+  font-size: 11px;
+  letter-spacing: .015em;
+  text-transform: lowercase;
+}
+
+body[data-glass] :is(.sphere-shape-control, .sphere-filters) > button[aria-pressed="true"] {
+  background: transparent;
+  color: #101a1c;
+  font-weight: 600;
+}
+
+body[data-glass] .sphere-control-icon {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: .82;
+  pointer-events: none;
+}
+
+body[data-glass] [aria-pressed="true"] .sphere-control-icon {
+  opacity: 1;
+}
+
+body[data-glass] .sphere-control-label {
+  pointer-events: none;
+}
+
+body[data-glass] :is(.sphere-shape-control, .sphere-filters) > button:focus-visible {
+  outline: 2px solid #263c44;
+  outline-offset: -3px;
+}
+
+body[data-glass] .sphere-open.glass-action {
+  min-height: 34px;
+  padding: 8px 13px;
+  margin-top: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: .025em;
+}
+
+@media (hover: hover) {
+  body[data-glass] :is(.sphere-shape-control, .sphere-filters) > button:hover {
+    color: #0d191c;
+  }
+}
+
+/* Two rows occupy the existing 100px mobile control allowance. */
+@media (max-width: 700px) {
+  body[data-glass] .sphere-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-content: stretch;
+    gap: 4px;
+    left: 18px;
+    right: 18px;
+    bottom: 4px;
+  }
+
+  body[data-glass] .sphere-shape-control.glass-track {
+    width: 100%;
+  }
+
+  body[data-glass] .sphere-shape-control > button {
+    flex-direction: column;
+    gap: 3px;
+    min-height: 44px;
+    padding: 5px 3px;
+    font-size: 11px;
+    letter-spacing: 0;
+  }
+
+  body[data-glass] .sphere-control-icon {
+    width: 13px;
+    height: 13px;
+    flex-basis: 13px;
+  }
+
+  body[data-glass] .sphere-filters.glass-track {
+    justify-self: end;
+    width: 180px;
+  }
+
+  body[data-glass] .sphere-filters > button {
+    font-size: 10px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
+
+@media (max-width: 360px) {
+  body[data-glass] .sphere-toolbar {
+    left: 14px;
+    right: 14px;
+  }
+
+  body[data-glass] .sphere-shape-control > button {
+    font-size: 10.5px;
+  }
+}
+
+/* Preserve the existing no-WebGL fallback rather than exposing inert shapes. */
+body[data-glass] .sphere-no-webgl .sphere-shape-control.glass-track {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-glass] :is(.sphere-shape-control, .sphere-filters) > button {
+    transition: none;
+  }
+}
