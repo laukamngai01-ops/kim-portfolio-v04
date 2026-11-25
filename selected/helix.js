@@ -6,6 +6,7 @@ const ease = t => t * t * (3 - 2 * t);
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const keyFor = entry => `${entry.projectId}:${entry.index}`;
 const discipline = (entry, category) => (entry.project.disciplines || []).some(value => String(value).toLowerCase() === category);
+const categories = new Map([['all', '全部'], ['photography', '攝影'], ['design', '設計'], ['packaging-3d', '3D 包裝']]);
 
 // Independently authored geometry and input handling. R13 research is recorded in
 // references/selected-20261116/r13-notes.md. No source-site code or media is bundled.
@@ -21,7 +22,8 @@ export function mount(host, { projects = [], items, openItem }) {
     return width > 0 && height > 0 ? width / height : 1.7;
   };
   const source = items || projects.flatMap(project => project.items.map((item, index) => ({ projectId: project.id, project, item, index })));
-  const images = source.filter(entry => entry.item.type === 'image' && (discipline(entry, 'photography') || discipline(entry, 'design')));
+  const images = source.filter(entry => entry.item.type === 'image' &&
+    [...categories.keys()].slice(1).some(category => discipline(entry, category)));
   const events = new AbortController();
   const { signal } = events;
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -29,7 +31,7 @@ export function mount(host, { projects = [], items, openItem }) {
   root.className = 'helix-root';
   root.innerHTML = `
     <div class="helix-stage" tabindex="0" role="group" aria-label="螺旋圖片畫廊。上下滾動或拖動；方向鍵瀏覽，Enter 打開作品。"><canvas class="helix-canvas" aria-hidden="true"></canvas><p class="helix-loading">正在排列圖片…</p></div>
-    <header class="helix-heading"><div>${glass ? '' : '<p class="helix-eyebrow">A collection of perspectives</p>'}<h1>攝影與設計</h1></div><nav class="helix-filters" aria-label="圖片分類">${[['all', '全部'], ['photography', '攝影'], ['design', '設計']].map(([value, title]) => `<button type="button" data-filter="${value}" aria-pressed="${value === 'all'}">${title}</button>`).join('')}</nav></header>
+    <header class="helix-heading"><div>${glass ? '' : '<p class="helix-eyebrow">A collection of perspectives</p>'}<h1>攝影與設計</h1></div><nav class="helix-filters" aria-label="作品分類">${[...categories].map(([value, title]) => `<button type="button" data-filter="${value}" aria-pressed="${value === 'all'}">${title}</button>`).join('')}</nav></header>
     <button class="helix-index-toggle" type="button" aria-expanded="false" aria-controls="helix-index">${glass ? '圖片目錄' : '圖片目錄 <span aria-hidden="true">↗</span>'}</button>
     <div class="helix-index" id="helix-index" hidden><div class="helix-index-heading"><h2>全部圖片</h2><p>選擇一張攝影或設計作品。</p></div><div class="helix-index-grid"></div></div>
     <footer class="helix-footer"><div class="helix-caption"><img class="helix-caption-image" alt=""><div class="helix-caption-copy"><p class="helix-caption-project"></p><h2 class="helix-caption-title"></h2><p class="helix-caption-zh"></p></div><button class="helix-open" type="button" aria-label="${glass ? '開啟所選圖片' : 'Open selected image'}">${glass ? '開啟' : '↗'}</button></div><div class="helix-navigation"><p class="helix-instruction">滾動或拖動 <span>Scroll or drag</span></p><div class="helix-stepper"><button type="button" data-step="-1" aria-label="${glass ? '上一張圖片' : 'Previous image'}">${glass ? '上一張' : '↑'}</button><span class="helix-count"></span><button type="button" data-step="1" aria-label="${glass ? '下一張圖片' : 'Next image'}">${glass ? '下一張' : '↓'}</button></div><button class="helix-pause" type="button" aria-pressed="false">暫停動態</button></div></footer><p class="helix-status" role="status" aria-live="polite"></p>`;
@@ -184,7 +186,7 @@ export function mount(host, { projects = [], items, openItem }) {
   }
   function renderIndex() {
     if (unified && !unavailable) { indexGrid.replaceChildren(); return; }
-    root.querySelector('.helix-index-heading h2').textContent = filter === 'all' ? '全部圖片' : filter === 'design' ? '設計' : '攝影';
+    root.querySelector('.helix-index-heading h2').textContent = filter === 'all' ? '全部作品' : categories.get(filter);
     indexGrid.innerHTML = filtered.map((entry, index) => {
       const title = entry.item.labelZh || entry.item.label || entry.project.title;
       const project = entry.project.titleZh || entry.project.title;
@@ -218,7 +220,7 @@ export function mount(host, { projects = [], items, openItem }) {
     filterNav.querySelectorAll('[data-filter]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.filter === value)));
     updateCaption(filtered[currentIndex()]);
     renderIndex();
-    announce(`${filtered.length} 張${value === 'all' ? '' : value === 'photography' ? '攝影' : '設計'}圖片`);
+    announce(`${filtered.length} 件${categories.get(value)}作品`);
     wake();
   }
   function step(delta) {
