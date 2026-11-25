@@ -132,9 +132,10 @@ export function mountStage(host, {
   const departureAxis = new THREE.Vector3(.5, -Math.sqrt(3) / 4, -.75);
   const departureTurn = new THREE.Quaternion();
   const turnAxis = new THREE.Vector3(0, 1, 0);
-  let pointer = null, hoverIndex = -1, wheelTime = -Infinity, pendingDetail = null;
+  let pointer = null, hoverPoint = null, hoverDirty = false, hoverIndex = -1;
+  let wheelTime = -Infinity, pendingDetail = null;
   let ready = Promise.resolve(), intro = 1, introDuration = 1.1, pendingIntro = null;
-  let outlineTimer = 0, outlineTarget = false, outlineExtent = 0, outlineExposure = -1;
+  let outlineTimer = 0, outlineTarget = null, outlineRecord = null, outlineExtent = 0, outlineExposure = -1;
   let outlineTransition = null, outlineFrameDue = 0;
   const media = matchMedia('(prefers-reduced-motion: reduce)');
   const reduced = () => reducedMotion ?? media.matches;
@@ -240,7 +241,8 @@ export function mountStage(host, {
   }
 
   function setEntries(next, index = 0, { immediate = false } = {}) {
-    cancelPointer(); hoverIndex = -1;
+    cancelPointer(); clearHover();
+    outlineTarget = outlineRecord = outlineTransition = null; outlineExtent = 0;
     for (const record of records) record.group.visible = false;
     entries = [...next]; records = entries.map(makeRecord);
     ready = Promise.all([...records.map(record => record.ready), maps.ready, env.ready]);
@@ -262,7 +264,8 @@ export function mountStage(host, {
     const next = clamp(Math.round(index), 0, entries.length - 1);
     const changed = next !== selected;
     selected = targetPosition = next;
-    hoverIndex = -1; records.forEach(record => { record.targetTiltX = record.targetTiltY = 0; });
+    hoverDirty = true;
+    records.forEach(record => { record.targetTiltX = record.targetTiltY = 0; });
     if (immediate || reduced()) position = targetPosition;
     updateLabel(); invalidate();
     if (notify && changed) onSelect(selected, { source });
@@ -329,6 +332,7 @@ export function mountStage(host, {
   function draw(dt) {
     if (destroyed || contextLost) return false;
     const ease = reduced() ? 1 : 1 - Math.exp(-dt * 10);
+    const previousPosition = position, previousIntro = intro;
     if (intro < 1) intro = reduced() ? 1 : Math.min(1, intro + dt / introDuration);
     position += (targetPosition - position) * ease;
     if (Math.abs(position - targetPosition) < .0002) position = targetPosition;
@@ -368,11 +372,20 @@ export function mountStage(host, {
       active ||= record.yaw !== record.targetYaw || record.tiltX !== record.targetTiltX || record.tiltY !== record.targetTiltY;
       pose(record, index);
     });
+    if (hoverPoint && !pointer && (hoverDirty || position !== previousPosition || intro !== previousIntro) && allowed()) {
+      // A moving shelf can bring a different disc under a stationary cursor.
+      scene.updateMatrixWorld(true);
+      if (updateHover()) active = true;
+    }
     const now = performance.now();
-    const nextOutlineTarget = (hoverIndex === selected || pointer?.rotate) && !paused && !detailTarget;
+    const hoverRecord = records[pointer?.rotate ? pointer.index : pointer?.moved ? -1 : hoverIndex];
+    const nextOutlineTarget = !paused && !detailTarget && hoverRecord?.group.visible ? hoverRecord : null;
     if (nextOutlineTarget !== outlineTarget) {
       outlineTarget = nextOutlineTarget;
-      if (outlineTarget && outlineExtent === 0) outlineExtent = .24;
+      if (outlineTarget) {
+        if (outlineRecord !== outlineTarget || outlineExtent === 0) outlineExtent = .24;
+        outlineRecord = outlineTarget;
+      }
       outlineTransition = { from: outlineExtent, to: outlineTarget ? 1 : 0, start: now, duration: outlineTarget ? 350 : 420 };
       outlineExposure = -1;
     }
@@ -383,8 +396,11 @@ export function mountStage(host, {
       outlineExtent = THREE.MathUtils.lerp(outlineTransition.from, outlineTransition.to, progress);
       if (progress === 1) outlineTransition = null;
     }
-    lines.visible = outlineExtent > .001 && records[selected]?.group.visible;
+    lines.visible = outlineExtent > .001 && Boolean(outlineRecord?.group.visible);
     if (lines.visible) {
+      lines.position.copy(outlineRecord.group.position);
+      lines.quaternion.copy(outlineRecord.shelfQuaternion);
+      lines.scale.copy(outlineRecord.group.scale);
       const exposure = reduced() ? 0 : Math.floor(now / OUTLINE_STEP_MS);
       if (outlineExposure !== exposure) {
         outlineExposure = exposure;
@@ -396,10 +412,6 @@ export function mountStage(host, {
     outlineFrameDue = !reduced() && (outlineTarget || outlineTransition)
       ? Math.min((Math.floor(now / OUTLINE_STEP_MS) + 1) * OUTLINE_STEP_MS,
         outlineTransition ? outlineTransition.start + outlineTransition.duration : Infinity) : 0;
-    if (records[selected]) {
-      lines.position.copy(records[selected].group.position); lines.quaternion.copy(records[selected].shelfQuaternion);
-      lines.scale.copy(records[selected].group.scale);
-    }
     scene.updateMatrixWorld(true); renderer.render(scene, camera);
     if (!handoff.active && pendingDetail) { const resolve = pendingDetail; pendingDetail = null; resolve(); }
     if (intro === 1 && pendingIntro) { const resolve = pendingIntro; pendingIntro = null; resolve(); }
@@ -425,10 +437,10 @@ export function mountStage(host, {
     const bounds = host.getBoundingClientRect(); width = Math.max(1, bounds.width); height = Math.max(1, bounds.height);
     narrow = width < 768;
     camera.aspect = width / height; camera.updateProjectionMatrix();
-    renderer.setSize(width, height, false); invalidate();
+    renderer.setSize(width, height, false); hoverDirty = true; invalidate();
   }
   function setDetail(open, { immediate = false } = {}) {
-    cancelPointer(); hoverIndex = -1; detailTarget = open ? 1 : 0;
+    cancelPointer(); clearHover(); detailTarget = open ? 1 : 0;
     if (pendingDetail) { pendingDetail(); pendingDetail = null; }
     handoff.set(Boolean(open), immediate || reduced() || contextLost);
     if (!handoff.active) { draw(0); return Promise.resolve(); }
@@ -449,9 +461,32 @@ export function mountStage(host, {
     return hit ? { index: records.indexOf(hit.object.userData.record), hit } : null;
   }
   function allowed() { return !destroyed && !paused && !contextLost && !detailTarget && !host.hidden && host.getClientRects().length > 0; }
+  function rememberHover(event) {
+    hoverPoint = { clientX: event.clientX, clientY: event.clientY };
+    hoverDirty = true;
+  }
+  function clearHover() {
+    hoverPoint = null; hoverDirty = false; hoverIndex = -1;
+    canvas.style.cursor = 'grab';
+    records.forEach(record => { record.targetTiltX = record.targetTiltY = 0; });
+  }
+  function updateHover() {
+    hoverDirty = false;
+    const hit = getHit(hoverPoint);
+    hoverIndex = hit?.index ?? -1;
+    canvas.style.cursor = hit ? 'pointer' : 'grab';
+    const record = records[selected];
+    if (!record) return;
+    if (hoverIndex === selected && !reduced()) {
+      const rect = canvas.getBoundingClientRect();
+      record.targetTiltX = clamp(-(hoverPoint.clientY - rect.top - height / 2) / height * .48, -.16, .16);
+      record.targetTiltY = clamp((hoverPoint.clientX - rect.left - width / 2) / width * .42, -.16, .16);
+    } else record.targetTiltX = record.targetTiltY = 0;
+    return record.tiltX !== record.targetTiltX || record.tiltY !== record.targetTiltY;
+  }
   function down(event) {
     if (!allowed() || pointer || !event.isPrimary || event.button > 0) return;
-    if (event.pointerType === 'touch') { hoverIndex = -1; invalidate(); }
+    if (event.pointerType === 'touch') { clearHover(); invalidate(); }
     const hit = getHit(event), record = records[selected];
     pointer = { id: event.pointerId, type: event.pointerType, x: event.clientX, y: event.clientY,
       index: hit?.index ?? -1, rotate: event.pointerType !== 'touch' && hit?.index === selected,
@@ -480,21 +515,13 @@ export function mountStage(host, {
       invalidate(); return;
     }
     if (event.pointerType === 'touch') return;
-    const hit = getHit(event); hoverIndex = hit?.index ?? -1;
-    canvas.style.cursor = hit ? 'pointer' : 'grab';
-    records.forEach((record, index) => {
-      if (index === selected && hoverIndex === selected && !reduced()) {
-        const rect = canvas.getBoundingClientRect();
-        record.targetTiltX = clamp(-(event.clientY - rect.top - height / 2) / height * .48, -.16, .16);
-        record.targetTiltY = clamp((event.clientX - rect.left - width / 2) / width * .42, -.16, .16);
-      } else record.targetTiltX = record.targetTiltY = 0;
-    });
+    rememberHover(event);
     invalidate();
   }
   function cancelPointer() {
     if (!pointer) return;
     try { canvas.releasePointerCapture(pointer.id); } catch {}
-    pointer = null; hoverIndex = -1; targetPosition = selected;
+    pointer = null; clearHover(); targetPosition = selected;
     const record = records[selected];
     if (record) {
       record.targetYaw = Math.round(record.targetYaw / PI) * PI; record.targetTiltX = record.targetTiltY = 0;
@@ -506,6 +533,8 @@ export function mountStage(host, {
     const gesture = pointer; pointer = null;
     try { canvas.releasePointerCapture(event.pointerId); } catch {}
     if (!allowed()) return;
+    if (gesture.type !== 'touch' && document.elementFromPoint(event.clientX, event.clientY) === canvas) rememberHover(event);
+    else clearHover();
     if (!gesture.moved) {
       if (gesture.index === selected) onOpen(selected, { trigger: host });
       else if (gesture.index >= 0) select(gesture.index, { notify: true, source: 'disc' });
@@ -515,9 +544,6 @@ export function mountStage(host, {
       const freshRelease = !reduced() && performance.now() - gesture.time < 80;
       record.inertiaX = freshRelease ? clamp(gesture.velocityY * 4.28, -6, 6) : 0;
       record.inertiaY = freshRelease ? clamp(gesture.velocity * 4.28, -6, 6) : 0;
-      const rect = canvas.getBoundingClientRect();
-      record.targetTiltX = reduced() ? 0 : clamp(-(event.clientY - rect.top - height / 2) / height * .48, -.16, .16);
-      record.targetTiltY = reduced() ? 0 : clamp((event.clientX - rect.left - width / 2) / width * .42, -.16, .16);
     } else {
       const dx = event.clientX - gesture.x;
       const step = Math.abs(dx) > 35 || Math.abs(gesture.velocity) > .45 ? -Math.sign(dx || gesture.velocity) : 0;
@@ -527,7 +553,7 @@ export function mountStage(host, {
   }
   function leave() {
     if (pointer) return;
-    hoverIndex = -1; records.forEach(record => { record.targetTiltX = record.targetTiltY = 0; }); invalidate();
+    clearHover(); invalidate();
   }
   function wheel(event) {
     if (!allowed() || pointer || Math.max(Math.abs(event.deltaY), Math.abs(event.deltaX)) < 2) return;
@@ -563,7 +589,7 @@ export function mountStage(host, {
     for (const resource of resources) resource.dispose();
     env.dispose(); renderer.dispose(); canvas.remove(); restoreHost(); recordCache.clear();
   }
-  for (const [name, handler] of [['pointerdown', down], ['pointermove', move], ['pointerup', up],
+  for (const [name, handler] of [['pointerdown', down], ['pointerenter', move], ['pointermove', move], ['pointerup', up],
     ['pointerleave', leave], ['pointercancel', event => { if (pointer?.id === event.pointerId) { cancelPointer(); invalidate(); } }],
     ['lostpointercapture', event => { if (pointer?.id === event.pointerId) { cancelPointer(); invalidate(); } }]]) {
     canvas.addEventListener(name, handler, { signal: abort.signal });
@@ -572,7 +598,7 @@ export function mountStage(host, {
   window.addEventListener('keydown', keyboard, { signal: abort.signal });
   window.addEventListener('blur', () => { cancelPointer(); leave(); }, { signal: abort.signal });
   canvas.addEventListener('webglcontextlost', event => {
-    event.preventDefault(); contextLost = true; cancelPointer(); host.dataset.webgl = 'unavailable';
+    event.preventDefault(); contextLost = true; cancelPointer(); clearHover(); host.dataset.webgl = 'unavailable';
     if (outlineTimer) { clearTimeout(outlineTimer); outlineTimer = 0; }
     pendingDetail?.(); pendingDetail = null; pendingIntro?.(); pendingIntro = null;
     onError(new Error('WebGL context lost'));
