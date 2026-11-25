@@ -19,7 +19,7 @@ const directoryReady = glass ? import('../glass/directory.js').then(({ createDir
 const descriptions = {
   sphere: [`${projects.length} 組作品 · ${items.length} 件媒體`, '互動作品總覽'],
   discs: [`${items.filter(({ item }) => item.type === 'video').length} 部影片`, glass ? '液體黑膠影片目錄' : '影片光碟目錄'],
-  helix: [`${items.filter(({ item }) => item.type === 'image').length} 張圖片`, '攝影與設計螺旋畫廊'],
+  helix: [`${items.filter(({ item }) => item.type === 'image').length} 件作品`, '攝影與設計螺旋畫廊'],
 };
 let activeScene = 'sphere';
 const mediaReader = bindPortfolioReader(reader, {

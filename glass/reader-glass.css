@@ -368,6 +368,43 @@
 
 #reader-stage > video { background: #101114; }
 
+.reader-model-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+}
+.reader-model-canvas:active { cursor: grabbing; }
+.reader-model-canvas:focus-visible { outline: 2px solid currentColor; outline-offset: -3px; }
+.reader-model-controls {
+  position: absolute;
+  z-index: 1;
+  inset: auto 9px 9px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 8px;
+  pointer-events: none;
+}
+.reader-model-controls > * {
+  padding: 8px 12px;
+  color: #22242c;
+  background: #f3f2ef;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.reader-model-controls span:empty { display: none; }
+.reader-model-controls button {
+  min-height: 44px;
+  flex-shrink: 0;
+  border: 1px solid #777a82;
+  pointer-events: auto;
+}
+.reader-model-controls button:focus-visible { outline: 2px solid #21242c; outline-offset: 2px; }
+
 #reader .reader-tools {
   grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 14px;

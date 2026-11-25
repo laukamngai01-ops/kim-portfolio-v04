@@ -19,15 +19,15 @@ export const films = videos.map(entry => {
   const series = videos.filter(other => other.projectId === projectId);
   const ordinal = series.indexOf(entry) + 1;
   const suffix = series.length > 1 ? ' / ' + ordinal : '';
-  const name = project.title + suffix;
-  const nameZh = project.titleZh + suffix;
-  const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-$/, '');
-  const isAI = project.disciplines?.includes('ai-film') || project.category === 'AI Film';
+  const name = item.filmTitle || (project.title + suffix);
+  const nameZh = item.filmTitleZh || (project.titleZh + suffix);
+  const id = item.filmId || name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-$/, '');
+  const isAI = item.aiAssisted ?? (project.disciplines?.includes('ai-film') || project.category === 'AI Film');
   return {
     ...entry, id, ordinal, isAI,
     name, nameZh, title: name, titleZh: nameZh, label: item.label,
     poster: item.image, discPrint: new URL('prints/' + id + '.webp', import.meta.url).href,
-    src: item.src, ...filmDetails[item.id],
+    src: item.src, durationSeconds: item.durationSeconds, filmNote: item.filmNote, ...filmDetails[item.id],
     projectRole: project.role, role: project.role, index,
   };
 });

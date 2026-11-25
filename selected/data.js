@@ -5,7 +5,9 @@ const mediaURL = value => value ? new URL(value, new URL('../', import.meta.url)
 export const projects = source.map(project => ({
   ...project,
   cover: mediaURL(project.cover),
-  items: project.items.map(item => ({ ...item, image: mediaURL(item.image), small: mediaURL(item.small), src: mediaURL(item.src) })),
+  items: project.items.map(item => ({
+    ...item, image: mediaURL(item.image), small: mediaURL(item.small), src: mediaURL(item.src), model: mediaURL(item.model),
+  })),
 }));
 export const items = projects.flatMap(project => project.items.map((item, index) => ({
   key: `${project.id}:${index}`, projectId: project.id, index, project, item,

@@ -4,15 +4,71 @@ export function bindPortfolioReader(reader, { projects, onSelect, canSelect = ()
   const stage = $('#reader-stage');
   let activeProject = null;
   let activeIndex = 0;
+  let modelController = null;
   function text(selector, value) { $(selector).textContent = value || ''; }
   function mediaPause() { stage.querySelector('video')?.pause(); }
+
+  function clearStage() {
+    mediaPause();
+    modelController?.abort();
+    modelController = null;
+    stage.replaceChildren();
+  }
+
+  function addModelControls(item) {
+    const controls = document.createElement('div');
+    controls.className = 'reader-model-controls';
+    const status = document.createElement('span');
+    status.setAttribute('role', 'status');
+    const launch = document.createElement('button');
+    launch.type = 'button';
+    launch.textContent = '旋轉模型';
+    controls.append(status, launch);
+    stage.append(controls);
+
+    launch.addEventListener('click', async () => {
+      const controller = new AbortController();
+      modelController = controller;
+      const { signal } = controller;
+      launch.disabled = true;
+      status.textContent = '正在載入模型…';
+      const reset = document.createElement('button');
+      const showFallback = () => {
+        controller.abort();
+        status.textContent = '3D 暫時無法載入，仍可查看圖片。';
+        launch.textContent = '重新載入 3D';
+        launch.disabled = false;
+        if (reset.isConnected) {
+          reset.replaceWith(launch);
+          launch.focus({ preventScroll: true });
+        }
+      };
+      try {
+        const { mountModelViewer } = await import('./model-viewer.js');
+        if (signal.aborted) return;
+        const viewer = await mountModelViewer(stage, item, { signal, onFailure: showFallback });
+        if (signal.aborted) return;
+        status.textContent = '拖動旋轉 · 捏合或滾輪縮放';
+        reset.type = 'button';
+        reset.textContent = '重設角度';
+        reset.addEventListener('click', viewer.reset, { signal });
+        launch.replaceWith(reset);
+        viewer.canvas.focus({ preventScroll: true });
+      } catch {
+        if (!signal.aborted) showFallback();
+      }
+    });
+  }
 
   function renderMedia() {
     const previous = $('#previous');
     const next = $('#next');
     const previousFocus = document.activeElement;
-    mediaPause(); stage.replaceChildren();
+    clearStage();
     const item = activeProject.items[activeIndex];
+    const disclosure = item.disclosure || activeProject.disclosure;
+    text('#reader-disclosure', disclosure);
+    $('#reader-disclosure').hidden = !disclosure;
     stage.style.setProperty('--media-ratio', String((item.width || item.imageWidth || 3) / (item.height || item.imageHeight || 2)));
     const media = document.createElement(item.type === 'video' ? 'video' : 'img');
     if (item.type === 'video') {
@@ -26,7 +82,8 @@ export function bindPortfolioReader(reader, { projects, onSelect, canSelect = ()
       media.src = item.image; media.width = item.imageWidth || item.width; media.height = item.imageHeight || item.height;
     }
     media.addEventListener('error', () => {
-      if (stage.firstElementChild !== media) return;
+      if (stage.firstElementChild !== media || stage.querySelector('canvas')) return;
+      if (item.model) return;
       mediaPause();
       const box = document.createElement('div'); box.className = 'reader-error';
       const note = document.createElement('p'); note.textContent = '這件媒體暫時無法載入。';
@@ -35,6 +92,7 @@ export function bindPortfolioReader(reader, { projects, onSelect, canSelect = ()
       retry.addEventListener('click', renderMedia); box.append(note, retry); stage.replaceChildren(box);
     }, { once: true });
     stage.append(media);
+    if (item.model) addModelControls(item);
     text('#media-label', `${String(activeIndex + 1).padStart(2, '0')} / ${String(activeProject.items.length).padStart(2, '0')} — ${item.labelZh}${item.type === 'video' ? ' · 預設靜音' : ''}`);
     previous.disabled = activeIndex === 0;
     next.disabled = activeIndex === activeProject.items.length - 1;
@@ -73,7 +131,6 @@ export function bindPortfolioReader(reader, { projects, onSelect, canSelect = ()
     text('#reader-title', project.title); text('#reader-title-zh', project.titleZh);
     text('#reader-role-en', project.role); text('#reader-role-zh', project.roleZh);
     text('#reader-intro-en', project.intro); text('#reader-intro-zh', project.introZh);
-    text('#reader-disclosure', project.disclosure); $('#reader-disclosure').hidden = !project.disclosure;
     $('.reader-copy details').open = false;
     $('#reader-thumbnails').replaceChildren();
     project.items.forEach((item, index) => {
@@ -81,7 +138,11 @@ export function bindPortfolioReader(reader, { projects, onSelect, canSelect = ()
       button.setAttribute('aria-label', `媒體 ${index + 1}，${item.labelZh}`);
       const image = document.createElement('img'); image.src = item.small; image.alt = ''; image.loading = 'lazy';
       button.append(image);
-      if (item.type === 'video') { const tag = document.createElement('span'); tag.textContent = 'FILM'; button.append(tag); }
+      if (item.type === 'video' || item.model) {
+        const tag = document.createElement('span');
+        tag.textContent = item.model ? '3D' : 'FILM';
+        button.append(tag);
+      }
       button.addEventListener('click', () => selectMedia(index));
       $('#reader-thumbnails').append(button);
     });
@@ -89,7 +150,7 @@ export function bindPortfolioReader(reader, { projects, onSelect, canSelect = ()
   }
 
   reader.addEventListener('keydown', event => {
-    if (event.altKey || event.ctrlKey || event.metaKey || event.target.closest('video,input,select,textarea')) return;
+    if (event.altKey || event.ctrlKey || event.metaKey || event.target.closest('video,.reader-model-canvas,input,select,textarea')) return;
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); selectMedia(activeIndex + (event.key === 'ArrowRight' ? 1 : -1)); }
   });
   $('#previous').addEventListener('click', () => selectMedia(activeIndex - 1));
@@ -100,6 +161,6 @@ export function bindPortfolioReader(reader, { projects, onSelect, canSelect = ()
     pause: mediaPause,
     get project() { return activeProject; },
     get index() { return activeIndex; },
-    clear() { mediaPause(); stage.replaceChildren(); activeProject = null; },
+    clear() { clearStage(); activeProject = null; },
   };
 }
